@@ -1,31 +1,23 @@
-CLEARFEED — iPHONE WEB APP + SAFARI FILTER
+CLEARFEED v4 — IPHONE REELS FIX
 
-WHAT IS INCLUDED
-index.html, style.css, app.js, manifest.webmanifest, sw.js, icon-192.png, icon-512.png
-  These files make up the Home Screen web app dashboard.
-ClearFeed.user.js
-  Companion Safari Userscripts filter (Reels / Explore / X For You and visible-use budget).
+WHY REELS STILL APPEARED
+Your Home Screen app is only a dashboard. Links to Instagram from it can open in a separate iOS browser view where Safari Userscripts may not run. The dashboard cannot hide or block Reels on Instagram by itself.
 
-IMPORTANT LIMITATIONS
-* A Home Screen web app cannot control Instagram or X websites itself. The companion Safari Userscripts filter is essential.
-* Safari extensions generally do not run within a standalone Home Screen web app. ClearFeed launches the social websites separately into Safari/the browser, where Userscripts needs to be enabled.
-* Links from a standalone iOS web app may open another app or browser depending on iOS. If the Userscripts filter does not run, use the same ClearFeed dashboard through Safari directly and tap the links there.
-* Website changes can break filtering. The time budget is a voluntary boundary; not a system-level lock.
-* The dashboard CANNOT read time usage from Instagram or X due to website privacy restrictions. The blocker counts time independently on those domains. A budget chosen here is sent to the blocker via a one-time URL parameter when you open a site.
-* The official Instagram and X apps are unaffected.
+HOW TO TEST RIGHT NOW (NO CODE CHANGES REQUIRED)
+1. Install and enable the Userscripts Safari extension and allow www.instagram.com website access.
+2. Open the Safari app itself (compass icon); go to https://www.instagram.com/direct/inbox/
+3. Confirm a GREEN "ClearFeed · ... min left" badge appears on Instagram. If it does not, the filter has not loaded. Do not assume any Reels are blocked.
+4. Try instagram.com/reels/ in Safari. If the extension works, it should redirect to messages.
+5. If the badge is missing, in Safari check page menu > Extensions > Userscripts; verify site permission, enabled script, and correct scripts folder. Reload the page.
 
-INSTALL WITH ONLY AN iPHONE
-1. You need to HOST the files on an HTTPS web host; opening index.html from Files does not install this as a working web app.
-2. One route: create a GitHub repository on github.com in Safari. Upload index.html, style.css, app.js, sw.js, manifest.webmanifest and both PNG icons to its root. Note that a public GitHub Pages repo makes the source files visible to others. Never upload credentials.
-3. In repository Settings > Pages, select Deploy from a branch, main, /(root), Save. Wait for your published HTTPS URL (https://YOURNAME.github.io/YOURREPO/).
-4. Open that HTTPS URL using Safari. Share > Add to Home Screen > Open as Web App > Add. (Options vary by iOS.)
-5. Install the "Userscripts" Safari extension from the App Store. Enable it in iPhone Settings > Apps > Safari > Extensions and give it website access for instagram.com and x.com.
-6. In Userscripts select a scripts folder from Files, save ClearFeed.user.js into that folder, and reload Instagram and X in Safari. Check that the script actually runs.
-7. In ClearFeed set daily limits. When you launch a site, the dashboard passes its limit to the companion filter. If filtering doesn't work from the web-app icon, open ClearFeed in Safari and use it from there.
-8. For stronger restrictions use iPhone Settings > Screen Time > App Limits / web site limits as an extra layer.
+WHAT CHANGED IN V4
+- The dashboard now includes a "Copy link for Safari" action in its launch dialog. Copy, switch to the *regular Safari app*, paste and navigate. This deliberately avoids iOS's unreliable in-app browser route.
+- The in-app Open action remains a convenience but may NOT be filtered. Always verify the badge.
+- Added best-effort CSS suppression for feed entries containing links to /reel/; retained direct Reel and Explore URL redirects, blocked Reel navigation anchors, and independent timers.
+- Updated cache name so the published dashboard can update rather than serving old files indefinitely.
 
-PRIVACY
-The dashboard uses localStorage for settings, the filter uses site-local storage for counters, and no ClearFeed server receives your Instagram or X logins. Your social websites can still collect their usual data.
+HOW TO UPDATE YOUR PUBLISHED SITE
+Replace index.html, app.js, sw.js and ClearFeed.user.js from the bundle in your GitHub Pages repository. Other files can remain. On your iPhone replace the old userscript with v4 in the folder Userscripts uses (keep only one active ClearFeed script). Reload Safari Instagram and your dashboard. A Home Screen web app's cached content may need a force refresh or re-add if it stays stale.
 
-TESTING
-This is a static web app project and its JS was syntax checked. It has NOT been tested on a physical iPhone or the current signed-in Instagram/X interfaces.
+LIMITATIONS
+No web-app dashboard can modify the official Instagram app. The filter only works when actually injected on instagram.com in a browser where Userscripts is active. Instagram may change its DOM and defeat the best-effort CSS. iOS may open links in Safari View Controller rather than regular Safari. Local usage counters are not tamper-proof and may differ across domains, private mode or browsers.

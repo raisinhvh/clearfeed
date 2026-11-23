@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ClearFeed — Intentional Instagram & X
 // @namespace    https://clearfeed.local/
-// @version      3.0.0
+// @version      4.0.0
 // @description  Hide Instagram Reels/Explore and X For You; add independent daily visible-use limits. Local only.
 // @match        https://instagram.com/*
 // @match        https://www.instagram.com/*
@@ -57,6 +57,12 @@
   function remainingMs() { return Math.max(0, getLimit()*60000-getUsage()); }
   function minutesLabel(ms) { const total = Math.ceil(ms/60000); return total > 0 ? `${total} min left` : 'Time finished'; }
   const CSS = `
+    /* Hide reel cards inserted in the Instagram home feed. */
+    article:has(a[href^="/reel/"]),
+    [role="article"]:has(a[href^="/reel/"]),
+    article:has(a[href*="instagram.com/reel/"]),
+    [role="article"]:has(a[href*="instagram.com/reel/"]) {display:none!important}
+
     a[href^="/reels"], a[href^="/reel/"], a[href^="/explore"],
     a[href^="https://www.instagram.com/reels"],a[href^="https://www.instagram.com/reel/"],
     a[href^="https://www.instagram.com/explore"] {display:none!important}
@@ -114,8 +120,19 @@
     document.documentElement.classList.toggle('cf-time-finished',locked);
   }
   function blockInstagramPath(p) { return /^\/(?:reels?(?:\/|$)|explore(?:\/|$))/.test(p); }
+
+  // Cover direct reel URLs while redirecting; catches deep links and SPA navigation.
+  function earlyReelsGuard(){
+    if(platform!=='instagram') return;
+    const blocked=/^\/(?:reels?(?:\/|$)|explore(?:\/|$))/.test(location.pathname.toLowerCase());
+    let shield=document.getElementById('cf-reel-route-guard');
+    if(blocked){
+      if(!shield){shield=document.createElement('style');shield.id='cf-reel-route-guard';shield.textContent='body{visibility:hidden!important}';(document.head||document.documentElement).appendChild(shield);}
+    } else if(shield){shield.remove();}
+  }
   function defendInstagram() {
     if(platform!=='instagram')return;
+    earlyReelsGuard();
     if(blockInstagramPath(location.pathname.toLowerCase())) { location.replace('https://www.instagram.com/direct/inbox/');return; }
   }
   function preventBlockedClick(e) {
@@ -153,7 +170,7 @@
   }
   function activity() {lastActivity=Date.now();}
   function begin() {
-    installCSS();render();schedule();
+    installCSS();earlyReelsGuard();render();schedule();
     document.addEventListener('click',preventBlockedClick,true);
     ['touchstart','pointerdown','keydown','scroll'].forEach(type=>document.addEventListener(type,activity,{passive:true,capture:true}));
     document.addEventListener('visibilitychange',()=>{lastTick=Date.now();activity();schedule();});
